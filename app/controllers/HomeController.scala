@@ -104,7 +104,6 @@ class HomeController @Inject()(configurations: Configurations, userDao: UserDao,
         val userId = formData.userId
         val password = formData.password
         val confirmPassword = formData.confirmPassword
-        println("FormData: "+userId+" - "+password)
         if (userId!=null && password!=null && password == confirmPassword) {
           userDao.UsersDao.getUserById(userId.toInt).map { user =>
             userDao.UsersDao.changeUserPassword(user.id.get, password)
