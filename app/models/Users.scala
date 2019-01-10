@@ -54,4 +54,8 @@ class Users @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, to
     db.run(userData.filter(_.id === userId).result.headOption)
   }
 
+  def updateAccountStatus(userId: Int, status: Int): Future[Int] = {
+    db.run(userData.filter(_.id === userId).map(x => (x.status)).update(status))
+  }
+
 }

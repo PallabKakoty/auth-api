@@ -67,12 +67,17 @@ class UserDao @Inject()(users: Users, mailService: MailService, userVerification
       Await.result(userFuture, 5 seconds)
       (token, date)
     }
+
+    def updateAccountStatus(userId: Int, status: Int): Int = {
+      val userFuture: Future[Int] = users.updateAccountStatus(userId, status)
+      Await.result(userFuture, 5 seconds)
+    }
   }
 
   object MailServiceDao {
     private implicit val logAddress = "dao.userDao.MailServiceDao"
-    def sendValidateLinkEmail(name: String, emailId: String, validateLink: String) = {
-      val email = Email("Validate your account using this link", "pallabkakoty@gmail.com",Seq(emailId), Some(validateLink))
+    def sendValidateLinkEmail(name: String, subject: String, emailId: String, validateLink: String) = {
+      val email = Email(subject, "pallabkakoty@gmail.com",Seq(emailId), Some(validateLink))
       mailService.sendMail(email)
     }
   }

@@ -32,7 +32,7 @@ class HomeController @Inject()(configurations: Configurations, userDao: UserDao,
             if (res!=0) {
               val tokenToValidateUser: String = tools.TokenGenerateBySize(15)
               userDao.UserVerificationDao.saveVerificationData(UserVerificationToken(None, res, tokenToValidateUser, 0, DateTime.now))
-              userDao.MailServiceDao.sendValidateLinkEmail(name, email, "http://localhost:9000/v1/activateprofile?verifyToken=" + tokenToValidateUser)
+              userDao.MailServiceDao.sendValidateLinkEmail(name, "Validate your account using this link", email, "http://localhost:9000/v1/activateprofile?verifyToken=" + tokenToValidateUser)
             }
             Ok(Json.obj("res" -> "success"))
           }.getOrElse(NotFound(Json.obj("err"->"Password not found")))
@@ -42,14 +42,11 @@ class HomeController @Inject()(configurations: Configurations, userDao: UserDao,
   }
 
   def validateUser(verifyToken: String) = Action {
-    if (verifyToken != null) {
-      Logger.debug("+++++++=> "+verifyToken)
-
-      // TODO verify user token and validate account
-      // TODO send email as account verified
-
-      Ok("")
-    } else NotFound("invalid verification token. please try again later")
+    userDao.UserVerificationDao.checkTokenDetails(verifyToken).map { tokenDetail =>
+      userDao.UsersDao.updateAccountStatus(tokenDetail.userId, 1)
+      userDao.UserVerificationDao.updateStatus(tokenDetail.id.get, 1)
+      Ok("Account Verified")
+    }.getOrElse(NotFound("invalid verification token. please try again later"))
   }
 
   def userLogin() = Action { implicit request =>
@@ -72,7 +69,7 @@ class HomeController @Inject()(configurations: Configurations, userDao: UserDao,
         userDao.UsersDao.getUserDataByEmail(email).map { user =>
           val tokenToValidateUser: String = tools.TokenGenerateBySize(15)
           userDao.UserVerificationDao.saveVerificationData(UserVerificationToken(None, user.id.get, tokenToValidateUser, 0, DateTime.now))
-          userDao.MailServiceDao.sendValidateLinkEmail(user.name, email, "http://localhost:9000/v1/setpassword?verifyToken=" + tokenToValidateUser)
+          userDao.MailServiceDao.sendValidateLinkEmail(user.name, "Change Password Using This Link", email, "http://localhost:9000/v1/setpassword?verifyToken=" + tokenToValidateUser)
           Ok(Json.obj("res" -> "Email send to the registered mail"))
         }.getOrElse(NotFound(Json.obj("err"->"Email not found")))
       }.getOrElse(NotFound(Json.obj("err"->"Email not found")))
