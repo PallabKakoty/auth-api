@@ -45,8 +45,6 @@
 				
 				* ContentType: application/json (Request Body)
             
-	A link will be sent to the user email id to change password.
-	Eg: http://localhost:9000/v1/setpassword?verifyToken=0f4turhiigd6799
       
       
       
