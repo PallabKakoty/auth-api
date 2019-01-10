@@ -1,5 +1,5 @@
 
-# play-scala-slick Authentication API #
+# Authentication API #
 
 
 # Create Profile API
